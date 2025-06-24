@@ -10,11 +10,15 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
+    env:
+      # Pass your secret API key here — set this in your repo settings secrets!
+      EXCHANGE_API_KEY: ${{ secrets.EXCHANGE_API_KEY }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'

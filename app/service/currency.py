@@ -6,18 +6,20 @@ from dotenv import load_dotenv
 load_dotenv()  # Load .env variables
 
 API_KEY = os.getenv("EXCHANGE_API_KEY")
-API_URL = "https://v6.exchangerate-api.com/v6"  # Base URL for example API
+API_URL = "https://v6.exchangerate-api.com/v6"
 
 class CurrencyConverter:
     def __init__(self):
         if not API_KEY:
             raise ValueError("API Key is missing! Please set EXCHANGE_API_KEY in .env")
+        self.api_key = API_KEY
+        self.api_url = API_URL
 
     async def convert(self, from_currency: str, to_currency: str, amount: float) -> dict:
         from_currency = from_currency.upper()
         to_currency = to_currency.upper()
 
-        url = f"{API_URL}/{API_KEY}/latest/{from_currency}"
+        url = f"{self.api_url}/{self.api_key}/latest/{from_currency}"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
@@ -44,3 +46,12 @@ class CurrencyConverter:
             "converted_amount": converted_amount,
             "rate": rate
         }
+
+    async def get_supported_currencies(self):
+        async with httpx.AsyncClient() as client:
+            url = f"{self.api_url}/{self.api_key}/codes"
+            response = await client.get(url)
+            response.raise_for_status()
+            data = response.json()
+            codes = data.get("supported_codes", [])
+            return [{"code": code, "currency": name} for code, name in codes]

@@ -10,10 +10,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    env:
-      # Pass your secret API key here — set this in your repo settings secrets!
-      EXCHANGE_API_KEY: ${{ secrets.EXCHANGE_API_KEY }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -26,12 +22,16 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install --no-cache-dir -r requirements.txt
 
       - name: Run tests
+        env:
+          EXCHANGE_API_KEY: ${{ secrets.EXCHANGE_API_KEY }}
+          PYTHONPATH: ${{ github.workspace }}
         run: |
-          export PYTHONPATH=$(pwd)
-          pytest
+          python -m pytest
 
       - name: Build Docker image
+        env:
+          EXCHANGE_API_KEY: ${{ secrets.EXCHANGE_API_KEY }}
         run: docker build -t currency-converter .

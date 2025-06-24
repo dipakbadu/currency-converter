@@ -16,8 +16,10 @@ async def convert_currency(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-
 @router.get("/supported-currencies")
 async def supported_currencies():
-    codes = await converter.get_supported_currencies()
-    return {"supported_currencies": codes}
+    try:
+        codes = await converter.get_supported_currencies()
+        return {"supported_currencies": codes}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
